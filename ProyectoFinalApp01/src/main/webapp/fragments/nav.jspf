@@ -1,0 +1,10 @@
+<%@page pageEncoding="UTF-8"%>
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+
+<nav>
+    <a href="<c:url value='/index.jsp' />#inicio">Inicio</a>
+    <a href="<c:url value='/index.jsp' />#registro">Registro</a>
+    <a href="<c:url value='/index.jsp' />#agenda">Agenda</a>
+    
+    <a href="<c:url value='/listar' />">Ver Registros</a>
+</nav>

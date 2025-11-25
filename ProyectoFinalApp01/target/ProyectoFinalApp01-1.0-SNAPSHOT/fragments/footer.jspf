@@ -1,0 +1,4 @@
+<%@page pageEncoding="UTF-8"%>
+<footer>
+    <p style="font-size: 0.9em;">Dev Summit 2025. Un evento de la comunidad para la comunidad.</p>
+</footer>

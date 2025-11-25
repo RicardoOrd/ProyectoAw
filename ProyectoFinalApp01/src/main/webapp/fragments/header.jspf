@@ -1,0 +1,5 @@
+<%@page pageEncoding="UTF-8"%>
+<header>
+    <h1>Dev Summit 2025</h1>
+    <p>El punto de encuentro para desarrolladores de Latinoamérica</p>
+</header>
