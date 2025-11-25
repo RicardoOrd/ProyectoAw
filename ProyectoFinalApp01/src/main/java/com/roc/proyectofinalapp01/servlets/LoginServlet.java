@@ -31,7 +31,7 @@ public class LoginServlet extends HttpServlet {
             System.out.println("LoginServlet: 'admin' ha iniciado sesión.");
 
             // 3. Redirigimos a la página de listado
-            response.sendRedirect(request.getContextPath() + "/listar");
+            response.sendRedirect(request.getContextPath() + "/listado.jsp");
             
         } else {
             // 4. Si es invalido, regresamos al login con un mensaje de error

@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-@WebFilter(filterName = "AuthenticationFilter", urlPatterns = {"/listar"})
+@WebFilter(filterName = "AuthenticationFilter", urlPatterns = {"/listado.jsp", "/api/participantes/*"})
 public class AuthenticationFilter implements Filter {
 
     @Override

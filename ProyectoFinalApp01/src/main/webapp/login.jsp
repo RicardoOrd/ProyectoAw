@@ -24,7 +24,7 @@
         <main class="contenedor-principal">
             <section id="login" class="seccion-formulario">
                 <h2>Iniciar Sesión</h2>
-                <p>Usa "admin" / "admin" para entrar (simulación).</p>
+                <p>Usa "admin" / "admin" para entrar.</p>
                 
                 <%-- Mostramos un mensaje de error si el filtro nos redirige --%>
                 <c:if test="${not empty param.error}">

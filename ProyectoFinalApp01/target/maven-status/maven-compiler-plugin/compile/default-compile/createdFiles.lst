@@ -1,7 +1,6 @@
 com\roc\proyectofinalapp01\dao\ParticipanteDAO.class
 com\roc\proyectofinalapp01\model\Participante.class
-com\roc\proyectofinalapp01\servlets\RegistroServlet.class
-com\roc\proyectofinalapp01\servlets\ListarParticipantesServlet.class
+com\roc\proyectofinalapp01\servlets\ParticipanteAPI.class
 com\roc\proyectofinalapp01\servlets\LoginServlet.class
 com\roc\proyectofinalapp01\security\AuthenticationFilter.class
 com\roc\proyectofinalapp01\dao\ConexionDB.class
