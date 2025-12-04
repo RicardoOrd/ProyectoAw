@@ -12,7 +12,6 @@ import java.util.List;
 
 public class ParticipanteDAO {
 
-    // 1. CREAR (INSERT) - Ya lo tenías, se mantiene igual
     public void insertar(Participante p) {
         String sql = "INSERT INTO participantes(nombre, email, fecha_nacimiento, experiencia, "
                    + "intereses, acepto_terminos, comentarios) VALUES(?, ?, ?, ?, ?, ?, ?)";
@@ -39,7 +38,7 @@ public class ParticipanteDAO {
         }
     }
     
-    // 2. LEER TODOS (SELECT ALL) - Ya lo tenías
+    // 2. LEER TODOS 
     public List<Participante> obtenerTodos() {
         List<Participante> participantes = new ArrayList<>();
         String sql = "SELECT * FROM participantes";
@@ -58,7 +57,7 @@ public class ParticipanteDAO {
         return participantes;
     }
 
-    // 3. LEER UNO POR ID (SELECT ONE) - ¡NUEVO!
+    // 3. LEER UNO POR ID 
     public Participante obtenerPorId(int id) {
         Participante p = null;
         String sql = "SELECT * FROM participantes WHERE id = ?";
@@ -78,7 +77,7 @@ public class ParticipanteDAO {
         return p;
     }
 
-    // 4. ACTUALIZAR (UPDATE) - ¡NUEVO!
+    // 4. ACTUALIZAR 
     public boolean actualizar(Participante p) {
         String sql = "UPDATE participantes SET nombre=?, email=?, fecha_nacimiento=?, experiencia=?, "
                    + "intereses=?, acepto_terminos=?, comentarios=? WHERE id=?";
@@ -96,7 +95,7 @@ public class ParticipanteDAO {
             
             pstmt.setBoolean(6, p.isAceptoTerminos());
             pstmt.setString(7, p.getComentarios());
-            pstmt.setInt(8, p.getId()); // Importante: el ID va al final en el WHERE
+            pstmt.setInt(8, p.getId()); 
 
             int filasAfectadas = pstmt.executeUpdate();
             return filasAfectadas > 0;
@@ -107,7 +106,7 @@ public class ParticipanteDAO {
         }
     }
 
-    // 5. ELIMINAR (DELETE) - ¡NUEVO!
+    // 5. ELIMINAR
     public boolean eliminar(int id) {
         String sql = "DELETE FROM participantes WHERE id = ?";
         try (Connection conn = ConexionDB.getConnection();
@@ -123,7 +122,6 @@ public class ParticipanteDAO {
         }
     }
 
-    // Método auxiliar para no repetir código al leer del ResultSet
     private Participante mapearParticipante(ResultSet rs) throws SQLException {
         Participante p = new Participante();
         p.setId(rs.getInt("id"));

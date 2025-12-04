@@ -1,96 +1,117 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Detectar en qué página estamos
+    // 1. Detectar en qué vista estamos buscando elementos clave
     const tabla = document.getElementById('tabla-body');
-    const form = document.getElementById('formRegistro');
+    const formRegistro = document.getElementById('formRegistro');
+    // Eliminado: const formLogin...
+    const nombreUsuarioSpan = document.getElementById('nombre-usuario'); 
 
+    // 2. Ejecutar la lógica correspondiente según la página
     if (tabla) {
         cargarParticipantes();
     }
 
-    if (form) {
+    if (formRegistro) {
         inicializarFormulario();
+    }
+
+    // Eliminado: if (formLogin) ...
+    
+    if (nombreUsuarioSpan) {
+        cargarNombreBienvenida();
     }
 });
 
-// --- LÓGICA DEL LISTADO (listado.jsp) ---
+// ==========================================
+// 1. LÓGICA DEL LISTADO (listado.jsp)
+// ==========================================
 
 async function cargarParticipantes() {
     try {
         const response = await fetch('api/participantes');
-        const datos = await response.json();
         
+
+
+        const datos = await response.json();
         const tbody = document.getElementById('tabla-body');
-        tbody.innerHTML = ""; 
+        tbody.innerHTML = ""; // Limpiar tabla antes de pintar
 
         datos.forEach(p => {
             const tr = document.createElement('tr');
-            // AQUÍ QUITAMOS 'APELLIDOS' Y USAMOS TUS CAMPOS REALES
+            // Construcción dinámica de filas
             tr.innerHTML = `
                 <td>${p.id}</td>
                 <td>${p.nombre}</td>
                 <td>${p.email}</td>
                 <td>${p.experiencia || ''}</td>
                 <td>
-                    <button onclick="eliminar(${p.id})">Borrar</button>
-                    <button onclick="irAEditar(${p.id})">Editar</button>
+                    <button class="btn-eliminar" style="color:red; cursor:pointer;" onclick="eliminar(${p.id})">Borrar</button>
+                    <button class="btn-editar" style="color:blue; cursor:pointer;" onclick="irAEditar(${p.id})">Editar</button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     } catch (error) {
         console.error("Error cargando tabla:", error);
+        const tbody = document.getElementById('tabla-body');
+        tbody.innerHTML = "<tr><td colspan='5'>Error cargando datos. Revise la consola.</td></tr>";
     }
 }
 
+// Funciones globales para los botones de la tabla
 function irAEditar(id) {
-    // ANTES: window.location.href = `index.jsp?id=${id}`;
-    // AHORA: Redirige a la página dedicada de edición
     window.location.href = `editar.jsp?id=${id}`;
 }
 
 async function eliminar(id) {
     if(confirm("¿Seguro que deseas eliminar este registro?")) {
-        await fetch(`api/participantes/${id}`, { method: 'DELETE' });
-        cargarParticipantes(); // Recargar tabla
+        try {
+            const resp = await fetch(`api/participantes/${id}`, { method: 'DELETE' });
+            if (resp.ok) {
+                cargarParticipantes(); // Recargar tabla visualmente
+            } else {
+                alert("No se pudo eliminar el registro");
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 }
 
-// --- LÓGICA DEL FORMULARIO (index.jsp) ---
+// ==========================================
+// 2. LÓGICA DEL FORMULARIO DE REGISTRO/EDICIÓN
+// ==========================================
 
 async function inicializarFormulario() {
-    // 1. Revisar si hay un ID en la URL (Modo Edición)
+    // A. Revisar si hay un ID en la URL (Modo Edición)
     const urlParams = new URLSearchParams(window.location.search);
     const idEditar = urlParams.get('id');
 
     if (idEditar) {
-        document.title = "Editar Participante"; // Cambiar título pestaña
+        document.title = "Editar Participante";
         await cargarDatosParaEditar(idEditar);
     }
 
-    // 2. Manejar el envío del formulario
+    // B. Manejar el envío del formulario (CREATE / UPDATE)
     document.getElementById('formRegistro').addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); 
         
         const datos = {
             nombre: document.getElementById('nombre').value,
             email: document.getElementById('email').value,
             fechaNacimiento: document.getElementById('fechaNacimiento').value,
             experiencia: document.getElementById('experiencia').value,
-            // Convertir checkbox a boolean
             aceptoTerminos: document.getElementById('aceptoTerminos').checked, 
             comentarios: document.getElementById('comentarios').value,
-            // Convertir select múltiple a array de strings
             intereses: Array.from(document.getElementById('intereses').selectedOptions).map(opt => opt.value)
         };
 
         let url = 'api/participantes';
         let method = 'POST';
 
-        // Si estamos editando, cambiamos a PUT y añadimos el ID
         if (idEditar) {
-            url += `/${idEditar}`; // api/participantes/5
+            url += `/${idEditar}`; 
             method = 'PUT';
-            datos.id = idEditar; // Añadir ID al JSON
+            datos.id = idEditar; 
         }
 
         try {
@@ -101,13 +122,19 @@ async function inicializarFormulario() {
             });
 
             if (resp.ok) {
-                alert(idEditar ? "Actualizado correctamente" : "Registrado correctamente");
-                window.location.href = "listado.jsp";
+                if (idEditar) {
+                    alert("Actualizado correctamente");
+                    window.location.href = "listado.jsp";
+                } else {
+                    const nombreEncoded = encodeURIComponent(datos.nombre);
+                    window.location.href = `registroExitoso.jsp?nombre=${nombreEncoded}`;
+                }
             } else {
-                alert("Error al guardar");
+                alert("Error al guardar en el servidor (Código " + resp.status + ")");
             }
         } catch (error) {
             console.error(error);
+            alert("Error de conexión con la API");
         }
     });
 }
@@ -119,29 +146,44 @@ async function cargarDatosParaEditar(id) {
         
         const p = await resp.json();
 
-        // Rellenar los campos del formulario con los datos recibidos
         document.getElementById('nombre').value = p.nombre;
         document.getElementById('email').value = p.email;
         document.getElementById('fechaNacimiento').value = p.fechaNacimiento || '';
         document.getElementById('experiencia').value = p.experiencia;
         document.getElementById('comentarios').value = p.comentarios;
         document.getElementById('aceptoTerminos').checked = p.aceptoTerminos;
+        
+        const hiddenId = document.getElementById('idParticipante');
+        if(hiddenId) hiddenId.value = p.id;
 
-        // Seleccionar los intereses (Select Multiple)
         if (p.intereses) {
             const selectIntereses = document.getElementById('intereses');
             Array.from(selectIntereses.options).forEach(opt => {
-                if (p.intereses.includes(opt.value)) {
+                if (Array.isArray(p.intereses) && p.intereses.includes(opt.value)) {
                     opt.selected = true;
+                } else if (typeof p.intereses === 'string' && p.intereses.includes(opt.value)) {
+                    opt.selected = true; 
                 }
             });
         }
         
-        // Cambiar texto del botón para que se vea claro
         const btn = document.querySelector('button[type="submit"]');
         if(btn) btn.textContent = "Actualizar Cambios";
 
     } catch (error) {
-        console.error("Error cargando datos para editar:", error);
+        console.error("Error cargando datos:", error);
     }
-}       
+}
+
+// ==========================================
+// 4. LÓGICA DE BIENVENIDA (registroExitoso.jsp)
+// ==========================================
+
+function cargarNombreBienvenida() {
+    const params = new URLSearchParams(window.location.search);
+    const nombre = params.get('nombre');
+    
+    if (nombre) {
+        document.getElementById('nombre-usuario').textContent = nombre;
+    }
+}
